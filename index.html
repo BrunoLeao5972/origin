@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<meta charset="UTF-8">
+<html ng-app="listaTelefonica">
+<head>
+    <title class id="cab">Lista Telefonica</title>
+    <script src="lib/angular-1.8.2/angular.js"></script>
+    <script src="lib/angular-1.8.2/angular-messages.js"></script>
+    <script src="lib/angular-1.8.2/angular-locale_pt-br.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/controllers/listaTelefonicaCtrl.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/app.css">
+    <link rel="stylesheet" type="text/css" href="lib/node_modules/bootstrap/dist/css/bootstrap.css">
+   <!--  Aqui eu faço as chamadas das minhas libs -->
+
+</head>
+<body ng-controller="listaTelefonicaCtrl"> <!-- a diretiva ng-controller é responsável pelo controle da aplicação, aqui gerenciamos o fluxo de dedos apresentados na view -->
+    <div class="jumbotron"> <!-- Componente do bootstrap, utilizado para eestilizar a página -->
+        <h4><b>{{app}}</b></h4>
+        <input class="form-control" tyoe="text" ng-model="CriterioDeBusca" placeholder="Buscar"> <!--  funciona como um canal entre a nossa view e o form. Ela pode ser utilizada em inputs do tipo texto, selects, textareas, checkboxes e radio buttons -->
+        <table ng-show="contatos.length > 0" class="table table-striped"> <!-- A diretiva ngShow, basicamente oculta o elemento no qual ela foi inserida, exibindo-o apenas mediante uma condição específica. -->
+            <tr>
+                <th></th>
+                <th><a href="" ng-click="ordenarPor('nome')">Nome</a></th> <!-- a diretiva ng-click, faz algo quando o evento click for disparado -->
+                <th><a href="" ng-click="ordenarPor('telefone')">Telefone</a></th>
+                <th><a href="" ng-click="ordenarPor('operadora')"></a>Operadora</th>
+                <th>Data</th>
+                <th></th>
+            </tr>
+            <tr ng-class="{'selecionado negrito': contato.selecionado}" ng-repeat="contato in contatos | filter:criterioDeBusca |  orderBy:criterioDeOrdenacao:direcaoDaOrdenacao">
+                <td><input type="checkbox" ng-model="contato.selecionado"/></td>
+                <td>{{contato.nome}}</td>
+				<td>{{contato.telefone}}</td>
+                <td>{{contato.operadora.nome | lowercase}}</td>
+                <td><div style="width: 20px; height: 20px;" ng-style="{'background-color': contato.cor}"></div></td>
+                <td>{{contato.data | date:'dd/MM/yyyy HH:mm'}}</td>
+            </tr>
+        </table>
+        <hr/>
+        <form name="contatoForm">
+        <input class="form-control" type="text" ng-model="contato.nome" name="nome" placeholder="Nome" ng-required="true" ng-minlength="3"/>
+        <input class="form-control" type="text" ng-model="contato.telefone" name="telefone" placeholder="Telefone" ng-required="true" ng-pattern="/^\d{5}-\d{4}$/"/>
+        <select class="form-control" ng-model="contato.operadora" ng-options="operadora.nome + '( ' + (operadora.preco | currency) + ' )' for operadora in operadoras | orderBy:'nome'">
+            <option value="">Selecione uma operadora</option>
+        </select>
+    </form>
+
+    <div ng-show="contatoForm.nome.$dirty" ng-messages="contatoForm.nome.$error"  class="alert alert-danger">
+        <div ng-message="required">
+            Por favor, preencha o campo nome!
+        </div>
+        <div ng-message="minlength">
+            O campo nome deve ter no mínimo 03 caracteres.
+        </div>
+    </div>
+    <div ng-show="contatoForm.telefone.$error.required && contatoForm.telefone.$dirty" class="alert alert-danger">
+        Por favor, preencha campo telefone!
+    </div>
+    <div ng-show="contatoForm.telefone.$error.pattern" class="alert alert-danger">
+        O campo telefone deve ter o formato XXXXX-XXXX.
+    </div>
+        <button class="btn  btn-primary btn block" ng-click="adicionarContato(contato)" ng-disabled="contatoForm.$invalid">Adicionar Contato</button>
+        <button class="btn-danger btn block" ng-click="apagarContatos(contatos)" ng-if="isContatoSelecionado(contatos)">Apagar</button>
+        <div ng-include="'view/footer.html'"></div>
+</body>
+</html>
